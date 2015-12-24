@@ -4,6 +4,7 @@ import android.app.ListActivity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -11,6 +12,8 @@ import android.widget.Toast;
 
 
 //import com.huya.myvideos.provider.ListData;
+
+import com.huya.myvideos.provider.GetList;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,10 +34,15 @@ public  class MainActivity extends ListActivity {
         new Thread(new Runnable(){
             @Override
             public void run() {
-                //list_item = (new ListData()).getData(1, 20);
+                try{
+                    list_item = (new GetList()).getData(1);
+                } catch (Exception e) {
+                    Log.e("test", e.toString());
+                }
+
             }
         }).start();
-        SimpleAdapter adapter = new SimpleAdapter(this,getData(),R.layout.vlist,
+        SimpleAdapter adapter = new SimpleAdapter(this,list_item,R.layout.vlist,
         new String[]{"title","times","img", "dateline"},
         new int[]{R.id.title,R.id.times, R.id.img,R.id.dateline});
         setListAdapter(adapter);
