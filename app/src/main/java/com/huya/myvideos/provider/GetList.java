@@ -20,7 +20,7 @@ public class GetList {
     public List<Map<String, String>> getData(int page) throws Exception {
         page = page > 0 ? page : 1;
         String json = null;
-        List<Map<String, String>> list = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> list = new ArrayList<>();
         Map<String, String> map = null;
         String location = apiUrl + "&page=" + page + "&pageSize=" + pageSize;
         URL url = new URL(location);
