@@ -1,7 +1,15 @@
 package com.huya.myvideos.provider;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.Volley;
+import com.huya.myvideos.UILApplication;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -17,13 +25,31 @@ import java.util.Map;
 public class GetList {
     public final String apiUrl = "http://api.v.huya.com/index.php?r=video/list&channelId=lol&appKey=hyapi_cs";
     public int pageSize = 20;
+
     public List<Map<String, String>> getData(int page) throws Exception {
+        final JSONArray[] jsonArray = new JSONArray[1];
         page = page > 0 ? page : 1;
         String json = null;
         List<Map<String, String>> list = new ArrayList<>();
         Map<String, String> map = null;
         String location = apiUrl + "&page=" + page + "&pageSize=" + pageSize;
-        URL url = new URL(location);
+        //用volley请求数据玩玩
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(location,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        jsonArray[0] = response;
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+        //添加
+        UILApplication.getInstance().addToRequestQueue(jsonArrayRequest);
+
+      /*  URL url = new URL(location);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();// 利用HttpURLConnection对象,我们可以从网络中获取网页数据.
         conn.setConnectTimeout(5 * 1000);   // 单位是毫秒，设置超时时间为5秒
         conn.setRequestMethod("GET");       // HttpURLConnection是通过HTTP协议请求path路径的，所以需要设置请求方式,可以不设置，因为默认为GET
@@ -46,15 +72,16 @@ public class GetList {
                 map.put("times", item.getString("play_sum"));
                 list.add(map);
             }
-        }
+        }*/
         return list;
     }
 
 
     /**
      * 把输入流转换成字符数组
-     * @param inputStream   输入流
-     * @return  字符数组
+     *
+     * @param inputStream 输入流
+     * @return 字符数组
      * @throws Exception
      */
     public static byte[] readStream(InputStream inputStream) throws Exception {
