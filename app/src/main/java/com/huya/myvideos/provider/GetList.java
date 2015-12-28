@@ -1,5 +1,7 @@
 package com.huya.myvideos.provider;
 
+import android.util.Log;
+
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -8,7 +10,7 @@ import com.android.volley.toolbox.Volley;
 import com.huya.myvideos.UILApplication;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
+
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -23,11 +25,12 @@ import java.util.Map;
  * Created by even on 2015-12-24.
  */
 public class GetList {
+    private final String TAG = "GetList";
     public final String apiUrl = "http://api.v.huya.com/index.php?r=video/list&channelId=lol&appKey=hyapi_cs";
     public int pageSize = 20;
 
     public List<Map<String, String>> getData(int page) throws Exception {
-        final JSONArray[] jsonArray = new JSONArray[1];
+        final JSONArray jsonArray;
         page = page > 0 ? page : 1;
         String json = null;
         List<Map<String, String>> list = new ArrayList<>();
@@ -38,7 +41,7 @@ public class GetList {
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray response) {
-                        jsonArray[0] = response;
+                        Log.d(TAG, "onResponse: "+response);
                     }
                 }, new Response.ErrorListener() {
             @Override
