@@ -53,7 +53,8 @@ public  class MainActivity extends Activity implements AbsListView.OnScrollListe
     private DisplayImageOptions options;
     private ListView lv;
     private ProgressDialog pDialog;
-    private String url = "http://api.v.huya.com/index.php?r=video/list&channelId=lol&appKey=hyapi_cs&pageSize=7";
+    //private String url = "http://api.v.huya.com/index.php?r=video/list&channelId=lol&appKey=hyapi_cs&pageSize=7";
+    private String url = "http://wx.liansuoerp.com/api.php?";
     private ArrayList<Video> videos;
     private ItemListAdapter adapter;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -64,7 +65,8 @@ public  class MainActivity extends Activity implements AbsListView.OnScrollListe
     private View moreView;
     private int lastVisibleIndex;
     private Toast toast;
-
+    private int cur_page;
+    private Boolean is_loading;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,11 +74,11 @@ public  class MainActivity extends Activity implements AbsListView.OnScrollListe
         pDialog=new ProgressDialog(this);
         pDialog.setMessage("loading....");
         pDialog.show();
-
+        //初始化第一页
+        cur_page = 1;
         lv = (ListView)findViewById(R.id.list);
         //上拉加载更多
         moreView = getLayoutInflater().inflate(R.layout.load_more, null);
-        bt = (TextView) moreView.findViewById(R.id.more);
         pb = (ProgressBar) moreView.findViewById(R.id.process);
         // 使用DisplayImageOptions.Builder()创建DisplayImageOptions
         options = new DisplayImageOptions.Builder()
@@ -90,7 +92,7 @@ public  class MainActivity extends Activity implements AbsListView.OnScrollListe
 
         videos = new ArrayList<Video>();
         //请求数据
-        fetchItems((int) (Math.random() * 50));
+        fetchItems(cur_page);
         adapter = new ItemListAdapter(videos);
         //将adapter 设置到listviewer
         lv.setAdapter(adapter);
@@ -99,18 +101,12 @@ public  class MainActivity extends Activity implements AbsListView.OnScrollListe
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Toast.makeText(MainActivity.this, "You click: " + position, Toast.LENGTH_SHORT).show();
                 ListView listView = (ListView) parent;
-                // HashMap<String, String> map = (HashMap<String, String>) listView.getItemAtPosition(position);
                 Video video = (Video) listView.getItemAtPosition(position);
                 String vid = video.getVid();
                 Bundle bundle = new Bundle();
                 bundle.putString("vid", vid);
-
-               // String url = "http://m.v.huya.com/play/" + vid + ".html";
-                //super.onListItemClick(l, v, position, id);
                 Intent intent = new Intent(MainActivity.this, ViewActivity.class);
                 intent.putExtras(bundle);
-                //intent.setClassName("com.android.browser", "com.android.browser.BrowserActivity");
-                //intent.setData(Uri.parse(url));//设置一个URI地址
                 MainActivity.this.startActivity(intent);
             }
         });
@@ -119,9 +115,9 @@ public  class MainActivity extends Activity implements AbsListView.OnScrollListe
             @Override
             public void onRefresh() {
                 videos.clear();
-                fetchItems((int) (Math.random() * 50));
-                //添加到list 底部
-                lv.addFooterView(moreView);
+                cur_page = 1;
+
+                fetchItems(cur_page);
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -129,16 +125,16 @@ public  class MainActivity extends Activity implements AbsListView.OnScrollListe
 
         lv.setOnScrollListener(this);
         //添加到list 底部
-        lv.addFooterView(moreView);
-        bt.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                fetchItems((int) (Math.random() * 50));
-                bt.setVisibility(View.VISIBLE);
-                pb.setVisibility(View.GONE);
-
-            }
-        });
+        //lv.addFooterView(moreView);
+//        bt.setOnClickListener(new View.OnClickListener(){
+//            @Override
+//            public void onClick(View v) {
+//                fetchItems(cur_page);
+//                bt.setVisibility(View.VISIBLE);
+//                pb.setVisibility(View.GONE);
+//
+//            }
+//        });
     }
 
     @Override
@@ -151,6 +147,7 @@ public  class MainActivity extends Activity implements AbsListView.OnScrollListe
 
     private void fetchItems(int page) {
         url = url + "&page=" + page;
+        is_loading = true;
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(url,
                 new Response.Listener<JSONArray>() {
                     @Override
@@ -172,6 +169,7 @@ public  class MainActivity extends Activity implements AbsListView.OnScrollListe
                         }
                         hidePDialog();
                         adapter.notifyDataSetChanged();
+                        is_loading = false;
                     }
                 },
                 new Response.ErrorListener() {
@@ -179,6 +177,7 @@ public  class MainActivity extends Activity implements AbsListView.OnScrollListe
                     public void onErrorResponse(VolleyError error) {
                         Log.e("main_activity", error.getMessage());
                         hidePDialog();
+                        is_loading = false;
                     }
                 }
         );
@@ -201,30 +200,30 @@ public  class MainActivity extends Activity implements AbsListView.OnScrollListe
 
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
-        if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE && lastVisibleIndex <= videos.size()) {
-           fetchItems((int) (Math.random() * 50));
-            bt.setVisibility(View.VISIBLE);
-            pb.setVisibility(View.GONE);
-        }
-        else {
-            toast =  Toast.makeText(this, "数据全部加载完成，没有更多数据！", Toast.LENGTH_SHORT);
-           // toast.show();
-        }
+//        if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE && lastVisibleIndex <= videos.size()) {
+//           fetchItems((int) (Math.random() * 50));
+//            bt.setVisibility(View.VISIBLE);
+//            pb.setVisibility(View.GONE);
+//        }
+//        else {
+//            toast =  Toast.makeText(this, "数据全部加载完成，没有更多数据！", Toast.LENGTH_SHORT);
+//           // toast.show();
+//        }
 
     }
 
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
         // 计算最后可见条目的索引
-        lastVisibleIndex = firstVisibleItem + visibleItemCount - 1;
-        // 所有的条目已经和最大条数相等，则移除底部的View
-        Log.e("ttttt", String.valueOf(videos.size()));
-
-        if (totalItemCount >= MaxDateNum + 1) {
-            lv.removeFooterView(moreView);
-           toast =  Toast.makeText(this, "数据全部加载完成，没有更多数据！", Toast.LENGTH_SHORT);
-            toast.show();
-            Log.e("ttttaaa", "assaaaa");
+        lastVisibleIndex = firstVisibleItem + visibleItemCount;
+        Log.e("TAG", lastVisibleIndex + "__" + totalItemCount);
+        if (lastVisibleIndex == totalItemCount && !is_loading) {
+            cur_page++;
+            pb.setVisibility(View.VISIBLE);
+            fetchItems(cur_page);
+            pb.setVisibility(View.GONE);
+            //toast =  Toast.makeText(this, "数据全部加载完成，没有更多数据！", Toast.LENGTH_SHORT);
+            //toast.show();
         }
     }
 

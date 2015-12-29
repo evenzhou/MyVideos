@@ -1,0 +1,16 @@
+Index: app/src/main/java/com/huya/myvideos/MainActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/huya/myvideos/MainActivity.java	(revision bb2369f2289c80939a04d17c0d8d05de2386377c)
++++ app/src/main/java/com/huya/myvideos/MainActivity.java	(revision 9cb2b586fc320ab4cc368027bdafcce16953b9be)
+@@ -89,7 +89,7 @@
+ 
+         });
+     }
+-
++ 
+     @Override
+     public void onStart() {
+         super.onStart();

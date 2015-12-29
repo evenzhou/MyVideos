@@ -10,6 +10,7 @@ import com.android.volley.toolbox.Volley;
 import com.huya.myvideos.UILApplication;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 
 import java.io.ByteArrayOutputStream;
@@ -26,33 +27,38 @@ import java.util.Map;
  */
 public class GetList {
     private final String TAG = "GetList";
-    public final String apiUrl = "http://api.v.huya.com/index.php?r=video/list&channelId=lol&appKey=hyapi_cs";
+    //public final String apiUrl = "http://api.v.huya.com/index.php?r=video/list&channelId=lol&appKey=hyapi_cs";
+    public final String apiUrl = "http://wx.liansuoerp.com/api.php?a=1";
     public int pageSize = 20;
 
     public List<Map<String, String>> getData(int page) throws Exception {
-        final JSONArray jsonArray;
         page = page > 0 ? page : 1;
         String json = null;
+        final JSONArray[] tjsonArray = new JSONArray[1];
         List<Map<String, String>> list = new ArrayList<>();
         Map<String, String> map = null;
         String location = apiUrl + "&page=" + page + "&pageSize=" + pageSize;
         //用volley请求数据玩玩
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(location,
+       /* JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(location,
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray response) {
-                        Log.d(TAG, "onResponse: "+response);
+                        Log.e(TAG, "onResponse: "+response);
+                        tjsonArray[0] = response;
+                        //Log.e(TAG, String.valueOf(response.getClass()));
+
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
 
             }
-        });
-        //添加
-        UILApplication.getInstance().addToRequestQueue(jsonArrayRequest);
+        });*/
 
-      /*  URL url = new URL(location);
+        //添加
+        // UILApplication.getInstance().addToRequestQueue(jsonArrayRequest);
+        // Log.e(TAG, "eeee" + String.valueOf(tjsonArray[0].length()));
+        URL url = new URL(location);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();// 利用HttpURLConnection对象,我们可以从网络中获取网页数据.
         conn.setConnectTimeout(5 * 1000);   // 单位是毫秒，设置超时时间为5秒
         conn.setRequestMethod("GET");       // HttpURLConnection是通过HTTP协议请求path路径的，所以需要设置请求方式,可以不设置，因为默认为GET
@@ -75,7 +81,7 @@ public class GetList {
                 map.put("times", item.getString("play_sum"));
                 list.add(map);
             }
-        }*/
+        }
         return list;
     }
 
