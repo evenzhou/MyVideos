@@ -48,7 +48,7 @@ public  class MainActivity extends Activity {
     private DisplayImageOptions options;
     private ListView lv;
     private ProgressDialog pDialog;
-    private String url = "http://wx.liansuoerp.com/api.php?a=1";
+    private String url = "http://api.v.huya.com/index.php?r=video/list&channelId=lol&appKey=hyapi_cs";
     private ArrayList<Video> videos;
     private ItemListAdapter adapter;
 
@@ -82,8 +82,9 @@ public  class MainActivity extends Activity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Toast.makeText(MainActivity.this, "You click: " + position, Toast.LENGTH_SHORT).show();
                 ListView listView = (ListView)parent;
-                HashMap<String, String> map = (HashMap<String, String>) listView.getItemAtPosition(position);
-                String vid = map.get("id");
+               // HashMap<String, String> map = (HashMap<String, String>) listView.getItemAtPosition(position);
+                Video video = (Video)listView.getItemAtPosition(position);
+                String vid = video.getVid();
                 String url = "http://m.v.huya.com/play/"+vid+".html";
                 //super.onListItemClick(l, v, position, id);
                 Intent intent = new Intent();
@@ -117,6 +118,7 @@ public  class MainActivity extends Activity {
                                 video.setImage(obj.optString("cover"));
                                 video.setTimes(obj.optString("play_sum"));
                                 video.setVid(obj.optString("vid"));
+                                video.setTitle(obj.optString("video_title"));
                                 videos.add(video);
                             } catch (JSONException e) {
                                 e.printStackTrace();
