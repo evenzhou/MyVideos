@@ -8,8 +8,9 @@
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_width="wrap_content"
+        android:layout_weight="1"
+        android:layout_height="0dp">
 
         <ListView
             android:id="@+id/list"
@@ -19,4 +20,5 @@
         </ListView>
 
     </android.support.v4.widget.SwipeRefreshLayout>
+    <include layout="@layout/footer_menu"/>
 </LinearLayout>
