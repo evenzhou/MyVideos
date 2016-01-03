@@ -1,6 +1,9 @@
 package com.huya.myvideos;
 
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -48,7 +51,8 @@ public class MainActivity extends Activity implements AbsListView.OnScrollListen
     private DisplayImageOptions options;
     private ListView lv;
     private ProgressDialog pDialog;
-    private String url = "http://api.v.huya.com/index.php?r=video/list&channelId=wiiu&appKey=hyapi_cs&pageSize=7";
+    //private String url = "http://api.v.huya.com/index.php?r=video/list&channelId=wiiu&appKey=hyapi_cs&pageSize=7";
+    private  String url = "http://wx.liansuoerp.com/index.php?";
     private ArrayList<Video> videos;
     private ItemListAdapter adapter;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -110,7 +114,13 @@ public class MainActivity extends Activity implements AbsListView.OnScrollListen
         lv.setOnScrollListener(this);
         //添加到list 底部
         lv.addFooterView(moreView);
-
+        //添加fragment
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        VideoFragment videoFragment = new VideoFragment();
+        fragmentTransaction.add(R.id.container, videoFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
     }
 
     @Override

@@ -20,5 +20,9 @@
         </ListView>
 
     </android.support.v4.widget.SwipeRefreshLayout>
+   <FrameLayout
+       android:id="@+id/container"
+       android:layout_width="wrap_content"
+       android:layout_height="match_parent"></FrameLayout>
     <include layout="@layout/footer_menu"/>
 </LinearLayout>
