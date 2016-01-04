@@ -52,6 +52,12 @@ class VideoListAdapter extends BaseAdapter {
     }
 
     @Override
+    public int getItemViewType(int position) {
+        //// FIXME: 2016-01-04 将footer view 合并
+        return super.getItemViewType(position);
+    }
+
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder = null;
         if (convertView == null) {

@@ -19,6 +19,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,75 +53,90 @@ public class MainActivity extends Activity implements AbsListView.OnScrollListen
     private ListView lv;
     private ProgressDialog pDialog;
     //private String url = "http://api.v.huya.com/index.php?r=video/list&channelId=wiiu&appKey=hyapi_cs&pageSize=7";
-    private  String url = "http://wx.liansuoerp.com/index.php?";
+    private String url = "http://wx.liansuoerp.com/index.php?";
     private ArrayList<Video> videos;
     private ItemListAdapter adapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ProgressBar pb;
     private View moreView;
-    private int lastVisibleIndex;
     private int cur_page;
     private Boolean isEnd;
     private Boolean is_loading;
     private Gson gson = new Gson();
     private boolean noMore = false;
+    private FragmentManager fragmentManager;
 
+    /*   @Override
+       protected void onCreate(Bundle savedInstanceState) {
+           super.onCreate(savedInstanceState);
+           setContentView(R.layout.activity_main);
+           pDialog = new ProgressDialog(this);
+           pDialog.setMessage("loading....");
+           pDialog.show();
+           //初始化第一页
+           cur_page = 1;
+           lv = (ListView) findViewById(R.id.list);
+           //上拉加载更多
+           moreView = getLayoutInflater().inflate(R.layout.load_more, null);
+           pb = (ProgressBar) moreView.findViewById(R.id.process);
+           videos = new ArrayList<Video>();
+           //请求数据
+           fetchItems(cur_page);
+           adapter = new ItemListAdapter(videos);
+           //将adapter 设置到listviewer
+           lv.setAdapter(adapter);
+           lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+               @Override
+               public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                   Toast.makeText(MainActivity.this, "You click: " + position, Toast.LENGTH_SHORT).show();
+                   ListView listView = (ListView) parent;
+                   Video video = (Video) listView.getItemAtPosition(position);
+                   String vid = video.getVid();
+                   Bundle bundle = new Bundle();
+                   bundle.putString("vid", vid);
+                   Intent intent = new Intent(MainActivity.this, ViewActivity.class);
+                   intent.putExtras(bundle);
+                   MainActivity.this.startActivity(intent);
+               }
+           });
+           swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe);
+           swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+               @Override
+               public void onRefresh() {
+                   cur_page = 1;
+                   noMore = false;
+                   fetchItems(cur_page);
+                   Log.e("aaaa", String.valueOf(noMore));
+                   swipeRefreshLayout.setRefreshing(false);
+               }
+           });
+           swipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_light, android.R.color.background_light, android.R.color.holo_green_light, android.R.color.holo_green_light);
+
+           lv.setOnScrollListener(this);
+           //添加到list 底部
+           lv.addFooterView(moreView);
+       }*/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        pDialog = new ProgressDialog(this);
-        pDialog.setMessage("loading....");
-        pDialog.show();
-        //初始化第一页
-        cur_page = 1;
-        lv = (ListView) findViewById(R.id.list);
-        //上拉加载更多
-        moreView = getLayoutInflater().inflate(R.layout.load_more, null);
-        pb = (ProgressBar) moreView.findViewById(R.id.process);
-        videos = new ArrayList<Video>();
-        //请求数据
-        fetchItems(cur_page);
-        adapter = new ItemListAdapter(videos);
-        //将adapter 设置到listviewer
-        lv.setAdapter(adapter);
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(MainActivity.this, "You click: " + position, Toast.LENGTH_SHORT).show();
-                ListView listView = (ListView) parent;
-                Video video = (Video) listView.getItemAtPosition(position);
-                String vid = video.getVid();
-                Bundle bundle = new Bundle();
-                bundle.putString("vid", vid);
-                Intent intent = new Intent(MainActivity.this, ViewActivity.class);
-                intent.putExtras(bundle);
-                MainActivity.this.startActivity(intent);
-            }
-        });
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe);
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                cur_page = 1;
-                noMore = false;
-                fetchItems(cur_page);
-                Log.e("aaaa", String.valueOf(noMore));
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        });
-        swipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_light, android.R.color.background_light, android.R.color.holo_green_light, android.R.color.holo_green_light);
 
-        lv.setOnScrollListener(this);
-        //添加到list 底部
-        lv.addFooterView(moreView);
-        //添加fragment
-        FragmentManager fragmentManager = getFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        VideoFragment videoFragment = new VideoFragment();
-        fragmentTransaction.add(R.id.container, videoFragment);
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
+        //避免重复添加
+        if (savedInstanceState == null) {
+            setContentView(R.layout.activity_main);
+            fragmentManager = getFragmentManager();
+            //获取底部tab button
+            RadioGroup btn_group = (RadioGroup) findViewById(R.id.btn_group);
+            btn_group.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(RadioGroup group, int checkedId) {
+                    FragmentTransaction transaction = fragmentManager.beginTransaction();
+                    Fragment fragment = FragmentFactory.getFragmentInstance(checkedId);
+                    transaction.add(R.id.container, fragment);
+                    transaction.addToBackStack(null);
+                    transaction.commit();
+                }
+            });
+      }
     }
 
     @Override
@@ -154,8 +170,8 @@ public class MainActivity extends Activity implements AbsListView.OnScrollListen
                     //ArrayList<Video>  videos = (ArrayList<Video>) videos1.clone();
                 } else {
                     //去重
-                    for (Video v:videos1) {
-                        if(videos.contains(v)) {
+                    for (Video v : videos1) {
+                        if (videos.contains(v)) {
                             videos1.remove(v);
                         }
                     }
@@ -204,7 +220,7 @@ public class MainActivity extends Activity implements AbsListView.OnScrollListen
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
         // 计算最后可见条目的索引
-        lastVisibleIndex = firstVisibleItem + visibleItemCount;
+        int lastVisibleIndex = firstVisibleItem + visibleItemCount;
         //滑到最后
         isEnd = lastVisibleIndex == totalItemCount ? true : false;
         //列表还有更多，且不是在加载中
@@ -218,6 +234,7 @@ public class MainActivity extends Activity implements AbsListView.OnScrollListen
     class ItemListAdapter extends BaseAdapter {
         private ImageLoader imageLoader = ImageLoader.getInstance();
         private ArrayList<Video> videos;
+
         ItemListAdapter(ArrayList<Video> videos) {
             this.videos = videos;
         }
@@ -263,6 +280,7 @@ public class MainActivity extends Activity implements AbsListView.OnScrollListen
             imageLoader.displayImage(videos.get(position).getCover(), holder.image);
             return convertView;
         }
+
         class ViewHolder {
             public ImageView image;
             public TextView dateline;
